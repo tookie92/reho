@@ -28,7 +28,7 @@ export default async function DashboardLayout({
   return (
     <div className="min-h-screen bg-white">
       {/* Sidebar */}
-      <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-zinc-200 bg-white">
+      <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-zinc-200 flex-col flex bg-white">
         {/* Logo Section */}
         <div className="flex h-16 items-center gap-3 border-b border-zinc-200 px-6">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-violet-600 to-indigo-600">
@@ -39,10 +39,13 @@ export default async function DashboardLayout({
 
         {/* Create New Series Button */}
         <div className="border-b border-zinc-200 p-4">
-          <button className="flex w-full items-center justify-center gap-2 rounded-lg bg-zinc-900 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-zinc-800">
+          <Link 
+            href="/dashboard/create" 
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-zinc-900 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-zinc-800"
+          >
             <Plus className="h-5 w-5" />
             Create New Series
-          </button>
+          </Link>
         </div>
 
         {/* Sidebar Navigation */}
