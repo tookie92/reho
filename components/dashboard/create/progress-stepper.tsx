@@ -11,25 +11,26 @@ interface Step {
 interface ProgressStepperProps {
   steps: Step[];
   currentStep: number;
+  completedSteps?: number[];
 }
 
-export function ProgressStepper({ steps, currentStep }: ProgressStepperProps) {
+export function ProgressStepper({ steps, currentStep, completedSteps = [] }: ProgressStepperProps) {
   return (
     <div className="border-b border-zinc-200 bg-white px-8 py-6">
-      <div className="flex items-center justify-between">
+      <div className="mb-4 flex items-center justify-between">
         {steps.map((step, index) => (
           <div key={step.id} className="flex items-center">
             <div className="flex flex-col items-center">
               <div
                 className={`flex h-10 w-10 items-center justify-center rounded-full border-2 transition-colors ${
-                  currentStep > step.id
+                  currentStep > step.id || completedSteps.includes(step.id)
                     ? "border-violet-600 bg-violet-600 text-white"
                     : currentStep === step.id
                     ? "border-violet-600 bg-white text-violet-600"
                     : "border-zinc-300 bg-white text-zinc-400"
                 }`}
               >
-                {currentStep > step.id ? (
+                {currentStep > step.id || completedSteps.includes(step.id) ? (
                   <Check className="h-5 w-5" />
                 ) : (
                   <step.icon className="h-5 w-5" />
@@ -37,7 +38,7 @@ export function ProgressStepper({ steps, currentStep }: ProgressStepperProps) {
               </div>
               <span
                 className={`mt-2 text-xs font-medium ${
-                  currentStep >= step.id ? "text-violet-600" : "text-zinc-400"
+                  currentStep >= step.id || completedSteps.includes(step.id) ? "text-violet-600" : "text-zinc-400"
                 }`}
               >
                 {step.name}
@@ -46,7 +47,7 @@ export function ProgressStepper({ steps, currentStep }: ProgressStepperProps) {
             {index < steps.length - 1 && (
               <div
                 className={`mx-2 h-0.5 w-16 ${
-                  currentStep > step.id ? "bg-violet-600" : "bg-zinc-200"
+                  currentStep > step.id || completedSteps.includes(step.id) ? "bg-violet-600" : "bg-zinc-200"
                 }`}
               />
             )}
