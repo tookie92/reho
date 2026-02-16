@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import { SupabaseProvider } from "@/components/providers/supabase-provider";
+import { AuthSync } from "@/components/auth-sync";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,14 +26,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <SupabaseProvider>
-          {children}
-        </SupabaseProvider>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          <SupabaseProvider>
+            <AuthSync />
+            {children}
+          </SupabaseProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
