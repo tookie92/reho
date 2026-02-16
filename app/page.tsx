@@ -1,5 +1,64 @@
 import Link from "next/link";
 import { Play, Youtube, Instagram, Mail, Calendar, Sparkles, Clock, BarChart3, Zap, ChevronRight } from "lucide-react";
+import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+
+function AuthButton() {
+  return (
+    <>
+      <SignedIn>
+        <Link href="/dashboard" className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-violet-600 px-8 text-sm font-medium text-white transition-all hover:bg-violet-700 hover:scale-105">
+          Go to Dashboard
+          <ChevronRight className="h-4 w-4" />
+        </Link>
+      </SignedIn>
+      <SignedOut>
+        <SignInButton mode="modal">
+          <button className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-violet-600 px-8 text-sm font-medium text-white transition-all hover:bg-violet-700 hover:scale-105 cursor-pointer">
+            Start Free Trial
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </SignInButton>
+      </SignedOut>
+    </>
+  );
+}
+
+function HeroButtons() {
+  return (
+    <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+      <AuthButton />
+      <Link href="#demo" className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-zinc-300 bg-white px-8 text-sm font-medium text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:hover:bg-zinc-800">
+        Watch Demo
+      </Link>
+    </div>
+  );
+}
+
+function CTASection() {
+  return (
+    <section className="py-20">
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-600 to-indigo-700 px-8 py-16 text-center sm:px-16 sm:py-20">
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djJoLTJ2LTJoMnptMC00aDJ2MmgtMnYtMnptLTQgNHYyaC0ydi0yaDJ6bTQtOGgydjJoLTJ2LTJ6bTgtOGgydjJoLTJ2LTJ6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-50"></div>
+          <div className="relative">
+            <h2 className="mb-4 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+              Ready to Transform Your Video Strategy?
+            </h2>
+            <p className="mx-auto mb-8 max-w-xl text-lg text-violet-100">
+              Join thousands of creators who are already using Reho to automate their video content across all platforms.
+            </p>
+            <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <AuthButton />
+              <Link href="#contact" className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-white/30 px-8 text-sm font-medium text-white transition-colors hover:bg-white/10">
+                Contact Sales
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export default function Home() {
   return (
@@ -7,12 +66,12 @@ export default function Home() {
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-zinc-200/50 bg-white/80 backdrop-blur-md dark:border-zinc-800/50 dark:bg-black/80">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-violet-600 to-indigo-600">
               <Play className="h-5 w-5 text-white fill-white" />
             </div>
             <span className="text-xl font-bold tracking-tight">Reho</span>
-          </div>
+          </Link>
           <div className="hidden items-center gap-8 md:flex">
             <Link href="#features" className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">
               Features
@@ -25,12 +84,19 @@ export default function Home() {
             </Link>
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/login" className="hidden text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 sm:block">
-              Sign In
-            </Link>
-            <Link href="/dashboard" className="rounded-full bg-zinc-900 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200">
-              Get Started
-            </Link>
+            <SignedOut>
+              <SignInButton mode="modal">
+                <button className="hidden text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 sm:block cursor-pointer">
+                  Sign In
+                </button>
+              </SignInButton>
+            </SignedOut>
+            <SignedIn>
+              <UserButton/>
+              <Link href="/dashboard" className="rounded-full bg-zinc-900 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200">
+                Dashboard
+              </Link>
+            </SignedIn>
           </div>
         </div>
       </nav>
@@ -50,15 +116,7 @@ export default function Home() {
             <p className="mb-10 text-lg text-zinc-600 dark:text-zinc-400">
               Reho lets you auto-generate stunning short videos using AI and schedule them across YouTube, Instagram, TikTok, and Email—all from one dashboard.
             </p>
-            <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Link href="/dashboard" className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-violet-600 px-8 text-sm font-medium text-white transition-all hover:bg-violet-700 hover:scale-105">
-                Start Free Trial
-                <ChevronRight className="h-4 w-4" />
-              </Link>
-              <Link href="#demo" className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-zinc-300 bg-white px-8 text-sm font-medium text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:hover:bg-zinc-800">
-                Watch Demo
-              </Link>
-            </div>
+            <HeroButtons />
           </div>
 
           {/* Platform Icons */}
@@ -170,29 +228,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-600 to-indigo-700 px-8 py-16 text-center sm:px-16 sm:py-20">
-            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djJoLTJ2LTJoMnptMC00aDJ2MmgtMnYtMnptLTQgNHYyaC0ydi0yaDJ6bTQtOGgydjJoLTJ2LTJ6bTgtOGgydjJoLTJ2LTJ6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-50"></div>
-            <div className="relative">
-              <h2 className="mb-4 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                Ready to Transform Your Video Strategy?
-              </h2>
-              <p className="mx-auto mb-8 max-w-xl text-lg text-violet-100">
-                Join thousands of creators who are already using Reho to automate their video content across all platforms.
-              </p>
-              <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-                <Link href="/dashboard" className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-8 text-sm font-semibold text-violet-600 transition-all hover:bg-violet-50 hover:scale-105">
-                  Start Your Free Trial
-                </Link>
-                <Link href="#contact" className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-white/30 px-8 text-sm font-medium text-white transition-colors hover:bg-white/10">
-                  Contact Sales
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <CTASection />
 
       {/* Footer */}
       <footer className="border-t border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950">
