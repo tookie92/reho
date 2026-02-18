@@ -2,8 +2,13 @@ import { Inngest } from "inngest";
 import { serve } from "inngest/next";
 import { supabaseAdmin } from "@/lib/supabase";
 import { createClient } from "@supabase/supabase-js";
-
+import { fal } from "@fal-ai/client";
+   
 const deepgramApiKey = process.env.DEEPGRAM_API_KEY!;
+const falKey = process.env.FAL_KEY || process.env.FAL_API_KEY!;
+if (falKey) {
+  fal.config({ credentials: falKey });
+}
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
@@ -268,32 +273,102 @@ Requirements:
       };
     });
 
-    // Step 5: Generate Images from prompt
+    // Step 5: Generate Images from prompt (using Fal.ai - FLUX.1 Schnell)
     const images = await step.run("generate-images", async () => {
-      console.log("Generating images...");
-      // TODO: Integrate image generation (e.g., DALL-E, Stable Diffusion)
-      // Use script content to generate image prompts
+      console.log("Generating images using Fal.ai FLUX.1 Schnell...");
+      console.log("FAL_KEY configured:", falKey ? "yes" : "no");
+
+      const generatedImages: Array<{ url: string; timestamp: number; sceneNumber: number }> = [];
+      let cumulativeTimestamp = 0;
+
+      for (const scene of script.scenes) {
+        const prompt = scene.imagePrompt;
+        console.log(`Generating image for scene ${scene.sceneNumber}: ${prompt.substring(0, 50)}...`);
+
+        const result: any = await fal.subscribe("fal-ai/flux/schnell", {
+          input: {
+            prompt: prompt,
+            image_size: { width: 1024, height: 1024 },
+            num_inference_steps: 4,
+            guidance_scale: 1.0,
+          },
+        });
+
+        console.log("Fal.ai result:", JSON.stringify(result, null, 2));
+
+        const imageUrl = result.data?.images?.[0]?.url || result.images?.[0]?.url || result.image?.url;
+        console.log(`Image URL from Fal.ai: ${imageUrl}`);
+
+        if (!imageUrl) {
+          throw new Error("Failed to generate image from Fal.ai");
+        }
+
+        const videoId = crypto.randomUUID();
+        const imagePath = `videos/${seriesId}/${videoId}/scene-${scene.sceneNumber}.png`;
+
+        const imageResponse = await fetch(imageUrl);
+        const imageBuffer = await imageResponse.arrayBuffer();
+        const imageArray = new Uint8Array(imageBuffer);
+
+        const { error: uploadError } = await supabaseStorage.storage
+          .from("video-assets")
+          .upload(imagePath, imageArray, {
+            contentType: "image/png",
+            upsert: true,
+          });
+
+        if (uploadError) {
+          console.error(`Failed to upload image for scene ${scene.sceneNumber}:`, uploadError);
+          throw new Error(`Failed to upload image: ${uploadError.message}`);
+        }
+
+        const { data: urlData } = supabaseStorage.storage
+          .from("video-assets")
+          .getPublicUrl(imagePath);
+
+        generatedImages.push({
+          url: urlData.publicUrl,
+          timestamp: cumulativeTimestamp,
+          sceneNumber: scene.sceneNumber,
+        });
+
+        cumulativeTimestamp += scene.duration;
+        console.log(`Scene ${scene.sceneNumber} image generated: ${urlData.publicUrl}`);
+      }
+
+      console.log(`Generated ${generatedImages.length} images`);
+
       return {
-        images: [
-          { url: "/placeholder-image-1.jpg", timestamp: 0 },
-          { url: "/placeholder-image-2.jpg", timestamp: 30 },
-        ],
+        images: generatedImages,
       };
     });
 
     // Step 6: Save everything to database
     const savedVideo = await step.run("save-to-database", async () => {
       console.log("Saving video to database...");
-      // TODO: Save all generated data to videos table
-      return {
-        id: "new-video-id",
-        seriesId,
-        script,
-        voiceData,
-        caption,
-        images,
-        status: "completed",
-      };
+
+      const { data, error } = await supabaseAdmin
+        .from("videos")
+        .insert({
+          series_id: seriesId,
+          user_id: series.user_id,
+          title: script.title,
+          script: script,
+          voice_data: voiceData,
+          caption: caption,
+          images: images.images,
+          status: "completed",
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Failed to save video:", error);
+        throw new Error(`Failed to save video: ${error.message}`);
+      }
+
+      console.log(`Video saved successfully: ${data.id}`);
+      return data;
     });
 
     return {

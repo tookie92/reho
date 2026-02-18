@@ -65,3 +65,63 @@ CREATE POLICY "Users can delete own series" ON public.series
 CREATE INDEX idx_series_user_id ON public.series(user_id);
 CREATE INDEX idx_series_status ON public.series(status);
 CREATE INDEX idx_series_created_at ON public.series(created_at DESC);
+
+-- Videos table to store generated video assets
+CREATE TABLE public.videos (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  series_id UUID REFERENCES public.series(id) ON DELETE CASCADE,
+  
+  -- Video metadata
+  title TEXT NOT NULL,
+  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'completed', 'failed')),
+  
+  -- Script
+  script JSONB,
+  
+  -- Voiceover
+  voice_url TEXT,
+  voice_duration INTEGER,
+  voice_model TEXT,
+  
+  -- Caption
+  caption_text TEXT,
+  caption_timestamps JSONB,
+  
+  -- Images
+  images JSONB,
+  
+  -- Final video URL (when assembled)
+  video_url TEXT,
+  
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable Row Level Security
+ALTER TABLE public.videos ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies for videos
+CREATE POLICY "Users can view own videos" ON public.videos
+  FOR SELECT USING (
+    series_id IN (SELECT id FROM public.series WHERE user_id = user_id)
+  );
+
+CREATE POLICY "Users can insert own videos" ON public.videos
+  FOR INSERT WITH CHECK (
+    series_id IN (SELECT id FROM public.series WHERE user_id = user_id)
+  );
+
+CREATE POLICY "Users can update own videos" ON public.videos
+  FOR UPDATE USING (
+    series_id IN (SELECT id FROM public.series WHERE user_id = user_id)
+  );
+
+CREATE POLICY "Users can delete own videos" ON public.videos
+  FOR DELETE USING (
+    series_id IN (SELECT id FROM public.series WHERE user_id = user_id)
+  );
+
+-- Create indexes for videos
+CREATE INDEX idx_videos_series_id ON public.videos(series_id);
+CREATE INDEX idx_videos_status ON public.videos(status);
+CREATE INDEX idx_videos_created_at ON public.videos(created_at DESC);

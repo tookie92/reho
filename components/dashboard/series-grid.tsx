@@ -17,17 +17,15 @@ export function SeriesGrid({ series }: SeriesGridProps) {
   };
 
   const handleViewVideos = (seriesItem: Series) => {
-    console.log("View videos for series:", seriesItem.id);
-    alert(`View videos for: ${seriesItem.series_name} - Coming soon!`);
+    router.push("/dashboard/videos");
   };
 
   const handleGenerateVideo = async (seriesItem: Series) => {
     try {
       await triggerVideoGeneration(seriesItem.id);
-      alert(`Video generation started for: ${seriesItem.series_name}!`);
+      router.push("/dashboard/videos");
     } catch (error) {
       console.error("Error triggering video generation:", error);
-      alert("Failed to start video generation");
     }
   };
 
