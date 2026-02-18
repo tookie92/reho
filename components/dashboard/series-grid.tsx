@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { SeriesCard } from "@/components/dashboard/series-card";
 import type { Series } from "@/actions/get-series";
+import { triggerVideoGeneration } from "@/actions/trigger-inngest";
 
 interface SeriesGridProps {
   series: Series[];
@@ -16,13 +17,16 @@ export function SeriesGrid({ series }: SeriesGridProps) {
   };
 
   const handleViewVideos = (seriesItem: Series) => {
-    console.log("View videos for series:", seriesItem.id);
-    alert(`View videos for: ${seriesItem.series_name} - Coming soon!`);
+    router.push("/dashboard/videos");
   };
 
-  const handleGenerateVideo = (seriesItem: Series) => {
-    console.log("Generate video for series:", seriesItem.id);
-    alert(`Generate video for: ${seriesItem.series_name} - Coming soon!`);
+  const handleGenerateVideo = async (seriesItem: Series) => {
+    try {
+      await triggerVideoGeneration(seriesItem.id);
+      router.push("/dashboard/videos");
+    } catch (error) {
+      console.error("Error triggering video generation:", error);
+    }
   };
 
   return (

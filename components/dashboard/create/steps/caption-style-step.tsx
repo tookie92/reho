@@ -13,11 +13,20 @@ interface CaptionStyleStepProps {
 const sampleText = "This is how your caption will look";
 
 function AnimatedCaption({ style, isPreview }: { style: CaptionStyle; isPreview: boolean }) {
-  const [animationClass, setAnimationClass] = useState("");
+  const [animationClass, setAnimationClass] = useState(() => {
+    switch (style.animation) {
+      case "fade": return "animate-fade";
+      case "slide-up": return "animate-slide-up";
+      case "slide-down": return "animate-slide-down";
+      case "typewriter": return "animate-typewriter";
+      case "bounce": return "animate-bounce";
+      case "scale": return "animate-scale";
+      default: return "";
+    }
+  });
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    setVisible(false);
     const timer = setTimeout(() => {
       setVisible(true);
     }, 100);
@@ -26,28 +35,17 @@ function AnimatedCaption({ style, isPreview }: { style: CaptionStyle; isPreview:
 
   useEffect(() => {
     if (!visible) return;
-    
-    setAnimationClass("");
-    switch (style.animation) {
-      case "fade":
-        setAnimationClass("animate-fade");
-        break;
-      case "slide-up":
-        setAnimationClass("animate-slide-up");
-        break;
-      case "slide-down":
-        setAnimationClass("animate-slide-down");
-        break;
-      case "typewriter":
-        setAnimationClass("animate-typewriter");
-        break;
-      case "bounce":
-        setAnimationClass("animate-bounce");
-        break;
-      case "scale":
-        setAnimationClass("animate-scale");
-        break;
-    }
+    const timeout = setTimeout(() => {
+      switch (style.animation) {
+        case "fade": setAnimationClass("animate-fade"); break;
+        case "slide-up": setAnimationClass("animate-slide-up"); break;
+        case "slide-down": setAnimationClass("animate-slide-down"); break;
+        case "typewriter": setAnimationClass("animate-typewriter"); break;
+        case "bounce": setAnimationClass("animate-bounce"); break;
+        case "scale": setAnimationClass("animate-scale"); break;
+      }
+    }, 50);
+    return () => clearTimeout(timeout);
   }, [visible, style.animation]);
 
   const baseStyle: React.CSSProperties = {

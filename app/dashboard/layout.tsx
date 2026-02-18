@@ -57,7 +57,16 @@ export default async function DashboardLayout({
                 className="flex items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900"
               >
                 <Film className="h-6 w-6" />
-                Series Videos
+                Series
+              </Link>
+            </li>
+            <li>
+              <Link 
+                href="/dashboard/videos" 
+                className="flex items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900"
+              >
+                <Play className="h-6 w-6" />
+                Videos
               </Link>
             </li>
             <li>

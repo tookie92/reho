@@ -1,7 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  transpilePackages: ["@clerk/nextjs"],
+  turbopack: {},
+  images:{
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**.supabase.com",
+      },
+    ],
+  }
 };
 
 export default nextConfig;
